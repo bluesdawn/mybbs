@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册页面</title>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/mystyle.css">
+    <script src="/static/jquery-3.3.1.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <form class="form-horizontal reg-form" novalidate autocomplete="off" action="/reg/" method="post"
+                  enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form_obj.username.id_for_label }}" class="col-sm-2 control-label">
+                        {{ form_obj.username.label }}</label>
+                    <div class="col-sm-8">
+                        {{ form_obj.username }}
+                        <span class="help-block">{{ form_obj.username.errors.0 }}</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="{{ form_obj.password.id_for_label }}" class="col-sm-2 control-label">
+                        {{ form_obj.password.label }}</label>
+                    <div class="col-sm-8">
+                        {{ form_obj.password }}
+                        <span class="help-block">{{ form_obj.password.errors.0 }}</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="{{ form_obj.re_password.id_for_label }}" class="col-sm-2 control-label">
+                        {{ form_obj.re_password.label }}</label>
+                    <div class="col-sm-8">
+                        {{ form_obj.re_password }}
+                        <span class="help-block">{{ form_obj.re_password.errors.0 }}</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="{{ form_obj.email.id_for_label }}" class="col-sm-2 control-label">
+                        {{ form_obj.email.label }}</label>
+                    <div class="col-sm-8">
+                        {{ form_obj.email }}
+                        <span class="help-block">{{ form_obj.email.errors.0 }}</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">头像</label>
+                    <div class="col-sm-8">
+                        <label for="touxiang"><img id="tx" src="/static/img/default.png" alt=""
+                                                   class="avatar-img"></label>
+                        <input type="file" name="" id="touxiang" style="display: none">
+                        <span class="help-block"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button id="reg-submit" type="button" class="btn btn-success">注册</button>
+{#                        <button  type="submit" class="btn btn-success">注册</button>#}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#touxiang').change(function () {
+        var fileReader = new FileReader();
+        var path = $(this)[0].files[0];
+        {#this.files[0] 这个和path是一样的#}
+        fileReader.readAsDataURL(path)
+        fileReader.onload = function () {
+            $('#tx').attr("src", fileReader.result)
+        }
+    });
+    $('#reg-submit').click(function () {
+        {#var formData = new FormData();#}
+        {#formData.append('username', $("#username").val());#}
+        {#formData.append('password', $("#password").val());#}
+        {#formData.append('re_password', $("#re_password").val());#}
+        {#formData.append('email', $("#email").val());#}
+        {#formData.append('touxiang', $("#touxiang")[0].files[0]);#}
+        {#formData.append('csrfmiddlewaretoken', $("[name='csrfmiddlewaretoken']").val());#}
+
+        var formData = new FormData();
+        formData.append("username", $("#id_username").val());
+        formData.append("password", $("#id_password").val());
+        formData.append("re_password", $("#id_re_password").val());
+        formData.append("email", $("#id_email").val());
+        formData.append("touxiang", $("#touxiang")[0].files[0]);
+        formData.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+
+        $.ajax({
+            url: "/reg/",
+            type: "post",
+            processData: false,
+            contentType: false,
+            data: formData,
+            success: function (data) {
+                if (data.status) {
+                    $.each(data.msg, function (k, v) {
+                        $("#id_"+k).next("span").text(v[0]).parent().parent().addClass("has-error")
+                    })
+                }
+                else {
+                    location.href = data.msg;
+                }
+            }
+        })
+    });
+    //将所有的input框绑定获取焦点的事件，将所有的错误信息清空
+    $("form input").focus(function () {
+        $(this).next().text("").parent().parent().removeClass("has-error");
+    })
+
+</script>
+
+</body>
+</html>
